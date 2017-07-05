@@ -14,16 +14,16 @@ Login.vm = {};
 
 Login.vm.user;
 
-Login.vm.init = (flag, data) => {
-	if (flag == true) {
-		console.log("flag is true");
+Login.vm.init = (data) => {
+	if (data == null) {
+		console.log("make a new user");
 		Login.vm.user = new User({
 			email: null,
 			password: null,
 			saveflag: false
 		});
 	} else {
-		console.log("flag is false");
+		console.log("load a user");
 		Login.vm.user = new User({
 			email: data.email,
 			password: data.password,
@@ -34,7 +34,7 @@ Login.vm.init = (flag, data) => {
 
 
 Login.vm.save = (email,password,saveflag) => {
-	console.log(email, password, saveflag);
+	console.log(email, saveflag);
 	Login.vm.user.email = email;
 	Login.vm.user.password = password;
 	Login.vm.user.saveflag = saveflag;
@@ -43,42 +43,61 @@ Login.vm.save = (email,password,saveflag) => {
 	}else{
 		localStorage.removeItem("user");
 	}
-}
+};
 
 Login.vm.login = (email, password, saveflag) => {
 	Login.vm.save(email,password,saveflag);
-	m.request({
-		method:"POST",
-		url:"https://connect.ubi.com/ubiservices/v2/profiles/sessions",
-		async:false,
+	ipcRenderer.send("api",{
+		method:"login",
 		headers:{
 			"Authorization":"Basic " + window.btoa(email+":"+password),
 			"Ubi-AppId":"39baebad-39e5-4552-8c25-2c9b919064e2",
-			"Content-Type":"application/json; charset=UTF-8"
-		}
-	}).then((data) => {
-		console.log(data);
-	})
-
+			"Content-Type":"application/json; charset=utf-8"
+		},
+		url:"https://connect.ubi.com/ubiservices/v2/profiles/sessions"
+	});
 };
+
+ipcRenderer.on("returnlogin",(event,arg) => {
+	console.log(arg.body);
+	if(arg.statusCode!=200){
+		console.log("error");
+		m.render($("div#alert")[0],Login.vm.loginerror);
+	}else{
+		const session = new Session({
+			profileId : arg.body.profileId,
+			ticket : arg.body.ticket,
+			name : arg.body.username
+		});
+		sessionStorage.setItem("userprofile",JSON.stringify(session));
+		m.render($("div#alert")[0],"");
+		m.route.set("/Stats");
+	}	
+});
+
+Login.vm.loginerror =
+	m("div.container",[
+		m("div.row",[
+			m("div.alert.alert-dismissible.alert-danger",[
+				m("button.close",{onclick:() => {m.render($("div#alert")[0],"")},"area-label":"close"},[
+					m("span","×")
+				]),
+			m("h3","Login Error!")	
+			])
+		])
+	]);
 
 Login.oninit = () => {
-	let user;
-	if (localStorage.user == null) {
-		user = null;
-	} else {
-		user = JSON.parse(localStorage.getItem("user"));
-	}
-	if (user === null) {
+	if (localStorage.getItem("user") == null) {
 		console.log("not find userdata;");
-		Login.vm.init(true, null);
+		Login.vm.init(null);
 	} else {
+		const user = JSON.parse(localStorage.getItem("user"));
 		console.log("find userdata;");
-		Login.vm.init(false, user);
+		Login.vm.init(user);
 	}
-
-
 };
+
 Login.view = (ctrl) => {
 	const vm = Login.vm;
 	return [
@@ -127,7 +146,7 @@ Login.view = (ctrl) => {
 									type: "reset"
 								}, "Clear"),
 								m("button.btn.btn-primary", {
-									type: "submit",
+									type: "button",
 									onclick: function () {
 										Login.vm.login($("#inputEmail").val(), $("#inputPassword").val(), document.getElementById("saveFlag").checked);
 									}
@@ -136,8 +155,8 @@ Login.view = (ctrl) => {
 						])
 					])
 				])
-			]),
-			m("div.row#error")
+			])
+
 		])
 	]
 };

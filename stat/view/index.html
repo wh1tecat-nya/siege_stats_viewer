@@ -9,14 +9,18 @@
 			delete window.module;
 		</script>
 		<link href="./css/bootstrap.min.css" rel="stylesheet"/>
-		<script>window.m = noderequire('./js/mithril.min.js');</script>
+		<link href="./css/index.css" rel="stylesheet"/>
+		<script>
+		window.m = noderequire('./js/mithril.min.js');
+		const {ipcRenderer} = noderequire('electron');
+		</script>
 		<script src="./view/login.js"></script>
 		<script src="./view/stats.js"></script>
 		<script src="./js/jquery-3.2.0.min.js" charset="utf-8"></script>
-		<!--<script src="./js/bootstrap.min.js" charset="utf-8"></script>-->
-		<!--<script src="./js/icheck.min.js" charset="utf-8"></script>
+		<script src="./js/bootstrap.min.js" charset="utf-8"></script>
+		<script src="./js/icheck.min.js" charset="utf-8"></script>
 		<script src="./js/jquery.fs.stepper.min.js" charset="utf-8"></script>
-		<script src="./js/jquery.fs.selecter.min.js" charset="utf-8"></script>-->
+		<script src="./js/jquery.fs.selecter.min.js" charset="utf-8"></script>
 		<title>Rainbow Six Siege Stats Viewer</title>
 	</head>
 	<body>
@@ -27,6 +31,7 @@
 			</div>
 		</div>
 	</div>
+	<div id="alert"></div>
 	<div id="root"></div>
 	<script src="./view/app.js"></script>
 </body>
