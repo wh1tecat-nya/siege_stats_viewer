@@ -10,9 +10,11 @@ class Session{
 	}
 }
 
+m.route.prefix("#");
+
 m.route(root,"/Login",{
 	"/Login" : Login,
-	"/Stats": Stats
+	"/Stats/:param" : Stats
 });
 
 if(sessionStorage.getItem("userprofile") == null){

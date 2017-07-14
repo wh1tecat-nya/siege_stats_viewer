@@ -59,7 +59,7 @@ Login.vm.login = (email, password, saveflag) => {
 };
 
 ipcRenderer.on("returnlogin",(event,arg) => {
-	console.log(arg.body);
+	console.log(arg);
 	if(arg.statusCode!=200){
 		console.log("error");
 		m.render($("div#alert")[0],Login.vm.loginerror);
@@ -71,7 +71,7 @@ ipcRenderer.on("returnlogin",(event,arg) => {
 		});
 		sessionStorage.setItem("userprofile",JSON.stringify(session));
 		m.render($("div#alert")[0],"");
-		m.route.set("/Stats");
+		m.route.set("/Stats/player");
 	}	
 });
 
@@ -123,11 +123,11 @@ Login.view = (ctrl) => {
 						m("div.form-group", [
 							m("label.col-lg-2.control-label", {
 								for: "inputPassword"
-							}, "PassWord"),
+							}, "Password"),
 							m("div.col-lg-10", [
 								m("input.form-control#inputPassword", {
 									type: "password",
-									placeholder: "PassWord",
+									placeholder: "Password",
 									value: Login.vm.user.password
 								}),
 								m("div.checkbox", [
